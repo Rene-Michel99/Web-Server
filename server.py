@@ -71,7 +71,7 @@ class HandleThreads:
                 if not thread.isAlive():
                     self.threads.remove(thread)
                     print("\nThread ",thread," encerrada. Desalocando...")
-                    print("---------------------------------------------------\n")
+                    print("-------------------------------------------------------\n")
                     break
         if not self.running:
             if self.threads!=[]:
@@ -117,6 +117,7 @@ class Server:
             conn.settimeout(1)
 
     def close_all_conns(self):
+        print("-*- Closing",len(self.conns),"connections...")
         for client in self.conns:
             client.close()
 
@@ -167,36 +168,49 @@ class Server:
 
         return data+"\r\n\r\n"
 
+    def get_page(self,to_page):
+        path = self.existDirectory(to_page)
+        print("--->",path)
+        if path:
+            print("OK STATUS")
+            page = self.get_ok_template()
+            page += self.get_content(path)
+            return page
+        else:
+            print("404 NOT FOUND")
+            return self.get_error_template()
+
+    def GET(self,params,to_page):
+        data = self.get_page(to_page)
+
+        return data
+
+    def POST(self,params,to_page):
+        cadastro = params
+        print("data:",cadastro)
+
+        data = self.get_page(to_page)
+        return data
+
+    def treat_method(self,method,params,to_page):
+        if method == "GET":
+            return self.GET(params,to_page)
+        elif method == "POST":
+            return self.POST(params,to_page)
+
     def handleNewConnection(self,client):
         request = client.recv(5000).decode()
         request = request.split("\n")
         data = ""
 
         if(request[0]):
-            method = request[0].split()
-            url = request[0].split()[1]
-            path = self.existDirectory(url)
+            method = request[0].split()[0]
+            to_page = request[0].split()[1]
 
-            if url.find("%20")!=-1:
-                url = url.replace("%20"," ")
+            print("METHOD [",method,"]")
 
-            print("METHOD [",method[0],"]")
-            if method[0] == "GET":
-                data = self.get_ok_template()
-            elif method[0] == "POST":
-                cadastro = request[len(request)-1]
-                print("data:",cadastro)
-                data = self.get_ok_template()
-            print(path,url,"***")
-
-            if path:
-                print("OK STATUS")
-                html = self.get_content(path)
-                data += html
-            else:
-                print("404 NOT FOUND")
-                data = self.get_error_template()
-                print(data)
+            params = request[len(request)-1]
+            data = self.treat_method(method,params,to_page)
 
             client.sendall(data.encode())
             client.shutdown(1)
@@ -211,7 +225,7 @@ class Server:
             try:
                 client,address = self.server.accept()
                 self.conns.append(client)
-                print("---------------------------------------------------")
+                print("---------------------------------------------------------")
                 print("Cliente: ",address,end="")
 
                 self.multiThread.newThread(client,self.handleNewConnection)
