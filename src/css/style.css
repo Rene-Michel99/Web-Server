@@ -18,6 +18,32 @@
   padding:8px;
   margin-top:6%;
 }
+#dep-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(0,0,200);
+  border-radius: 5px;
+  padding:8px;
+  position: absolute;
+  top:6%;
+  right:15%;
+  width:350px;
+  height:430px;
+}
+#home{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,255,255,0.7);
+  padding:12px;
+  border-radius:5px;
+  width:320px;
+  box-shadow: 5px 5px 5px rgba(0,0,50,0.5);
+  border: 1px solid rgb(0,0,150);
+}
 #sub-btn{
   border:0px;
   border-radius:5px;
@@ -38,6 +64,47 @@
   margin-bottom:25px;
   box-shadow:0 0 15px 4px rgba(0,0,0,0.5);
 }
+#cad-btn{
+  margin-top:8px;
+  text-decoration: none;
+  color:white;
+  font-family: monospace;
+  background-color: rgba(250,250,250,0.5);
+  padding:12px;
+  border-radius: 5px;
+}
+#cad-btn:hover{
+  transform: scale(1.2);
+  background-color: rgba(250,250,250,1);
+  color:blue;
+}
+#bank-icon{
+  border-radius: 5px;
+  border: 2px solid white;
+}
+@media(min-width: 720px){
+  #dep-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(0,0,200);
+    border-radius: 5px;
+    padding:8px;
+    position: absolute;
+    top:12%;
+    left:37%;
+    width:350px;
+    height:430px;
+  }
+}
+table, th, td{
+  border: 1px solid rgba(255,255,255,0.5);
+  padding: 8px;
+  background-color: rgba(0,0,185,0.5);
+  color:white;
+  font-family: monospace;
+}
 .input-text{
   border:0px;
   border-radius:5px;
@@ -46,12 +113,40 @@
   border: 2px solid #eee;
   box-shadow:0 0 15px 4px rgba(0,0,0,0.5);
 }
+.act-btn{
+  margin-top:8px;
+  text-decoration: none;
+  color:white;
+  font-family: monospace;
+  background-color: rgba(255,255,255,0.5);
+  padding:12px;
+  width:125px;
+  border-radius: 5px;
+  text-align: center;
+  border:0px;
+}
+.act-btn:hover{
+  transform: scale(1.2);
+  background-color: rgba(250,250,250,1);
+  color:blue;
+}
 body{
   background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(25,25,27,1) 41%, rgba(19,0,255,1) 76%);
+}
+h1{
+  font-family:monospace;
+  color:white;
+  text-align: center;
 }
 h2{
   font-family:monospace;
   color:white;
+  text-align: center;
+}
+h3{
+  font-family:monospace;
+  color:white;
+  text-align: center;
 }
 label{
   font-family:monospace;

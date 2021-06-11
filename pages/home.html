@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Home</title>
+    <link rel="stylesheet" href="../src/css/style.css">
+    <script>
+      function deposito(){
+        const new_div = document.createElement("form");
+        new_div.id = "dep-container";
+        new_div.action = "/deposito";
+        new_div.method = "POST";
+        new_div.innerHTML = "<h2>Depositar</h2>";
+        new_div.innerHTML += '<label for="cash">Valor</label>'
+        new_div.innerHTML += '<input name="cash" type="number" min="10" max="1000" required>'
+        new_div.innerHTML += '<input id="sub-btn" onclick="confirm()" type="submit" value="Depositar">'
+        new_div.innerHTML += '<button id="sub-btn" onclick="Cancelar()">Cancelar</button>'
+
+        const container = document.getElementById("container");
+        container.appendChild(new_div);
+      }
+      function sacar(){
+        const new_div = document.createElement("form");
+        new_div.id = "dep-container";
+        new_div.action = "/sacar";
+        new_div.method = "POST";
+        new_div.innerHTML = "<h2>Sacar</h2>";
+        new_div.innerHTML += '<label for="cash">Valor</label>'
+        new_div.innerHTML += '<input name="cash" type="number" min="10" max="1000" required>'
+        new_div.innerHTML += '<input id="sub-btn" onclick="confirm()" type="submit" value="Sacar">'
+        new_div.innerHTML += '<button id="sub-btn" onclick="Cancelar()">Cancelar</button>'
+
+        const container = document.getElementById("container");
+        container.appendChild(new_div);
+      }
+      function transferir(){
+        const new_div = document.createElement("form");
+        new_div.id = "dep-container";
+        new_div.action = "/transferir";
+        new_div.method = "POST";
+        new_div.innerHTML = "<h2>Transferir</h2>";
+        new_div.innerHTML += '<label for="cpf">CPF do Destinatário</label>'
+        new_div.innerHTML += '<input class="input-text" name="cpf" type="text" required>'
+        new_div.innerHTML += '<label for="cash">Valor</label>'
+        new_div.innerHTML += '<input name="cash" type="number" min="10" max="1000" required>'
+        new_div.innerHTML += '<input id="sub-btn" onclick="confirm()" type="submit" value="Transferir">'
+        new_div.innerHTML += '<button id="sub-btn" onclick="Cancelar()">Cancelar</button>'
+
+        const container = document.getElementById("container");
+        container.appendChild(new_div);
+      }
+      function confirm(){
+        alert("Operação Realizada Com Sucesso!");
+      }
+      function Cancelar(){
+        const container = document.getElementById("container");
+        const deposito = document.getElementById("dep-container");
+
+        container.removeChild(deposito);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="home">
+        <h1>{id}</h1>
+        <button class="act-btn" onclick="deposito()">Depositar</button>
+        <button class="act-btn" onclick="sacar()">Sacar</button>
+        <button class="act-btn" onclick="transferir()">Transferência</button>
+        <a href="/extrato" class="act-btn">Consultar Extrato</a>
+        <button class="act-btn" style="background-color:yellow;">Fechar Conta</button>
+        <a href="/logout" class="act-btn" style="background-color:red;">Sair</a>
+      </div>
+    </div>
+  </body>
+</html>
