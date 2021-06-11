@@ -3,47 +3,7 @@ import socket
 import threading
 import re
 import datetime
-
-def VerificaDiretorio():
-    # Getting the current work directory (cwd)
-    thisdir = os.getcwd()   #thisdir recebe o caminho da pasta atual
-
-    # r=root, d=directories, f = files
-    caminhos = []
-
-    #percorre pastas em busca de arquivos
-    for r, d, f in os.walk(thisdir): #os.walk "caminha entre os diretorios para encontrar o arquivo especificado"
-        for file in f:
-            if "" in file:
-                caminho_completo = (os.path.join(r, file))
-                caminho_a_partir_do_host = caminho_completo.find("Trabalho_16_09")
-                caminhos.append(caminho_completo[caminho_a_partir_do_host + 15:])
-
-    #percorre pastas em busca de pastas
-    for r, d, f in os.walk(thisdir): #os.walk "caminha entre os diretorios para encontrar o arquivo especificado"
-        for file in d:
-            if "" in file:
-                caminho_completo = (os.path.join(r, file))
-                caminho_a_partir_do_host = caminho_completo.find("Trabalho_16_09")
-                caminhos.append(caminho_completo[caminho_a_partir_do_host + 15:])
-
-    contador = 0
-    for item in caminhos:
-        caminhos[contador] = item.replace("\\", '/')
-        contador += 1
-
-    caminhos_organizados = []
-    for item in caminhos:
-        if '.' not in item:
-            caminhos_organizados.append(item)
-
-    for item in caminhos:
-        if item not in caminhos_organizados:
-            caminhos_organizados.append(item)
-
-    #print (caminhos_organizados)
-
-    return caminhos_organizados
+import time
 
 class HandleThreads:
     def __init__(self):
@@ -56,26 +16,25 @@ class HandleThreads:
         th.start()
 
         self.threads.append(th)
-        print("\nThread ",th," iniciada")
+        print("-*- Thread ",th," iniciada\n")
 
     def getAliveThreads(self):
-        print("\nThreads em execução")
+        print("\n-*- Threads em execução")
         for thread in self.threads:
             if thread.isAlive():
                 print(thread)
-
 
     def check(self):
         while self.running:
             for thread in self.threads:
                 if not thread.isAlive():
                     self.threads.remove(thread)
-                    print("\nThread ",thread," encerrada. Desalocando...")
+                    print("-*- Thread ",thread," encerrada. Desalocando...")
                     print("-------------------------------------------------------\n")
                     break
         if not self.running:
             if self.threads!=[]:
-                print(len(self.threads)," threads recentes fechadas.")
+                print("-*-",len(self.threads)," threads recentes fechadas.")
                 self.threads.clear()
 
 
@@ -85,8 +44,10 @@ class Server:
         self.running = True
         self.conns = []
         self.paths = {}
+        self.source = []
 
         self.define_pages()
+        self.define_source()
 
         self.multiThread = HandleThreads()
 
@@ -100,6 +61,15 @@ class Server:
 
         self.start()
 
+    def define_source(self):
+        for file in os.listdir('./src'):
+            if os.path.isdir("./src/"+file):
+                for item in os.listdir("./src/"+file):
+                    self.source.append("/src/"+file+"/"+item)
+            else:
+                self.source.append("/src/"+file)
+        print("-*- source:",self.source)
+
     def define_pages(self):
         pages = os.listdir('./pages')
 
@@ -110,7 +80,7 @@ class Server:
                 self.paths["/cadastrar"] = "./pages/"+item
             else:
                 self.paths["/"+item] = "./pages/"+item
-        print("PAGES:",self.paths)
+        print("-*- PAGES:",self.paths)
 
     def blockAll(self):
         for conn in self.conns:
@@ -118,6 +88,7 @@ class Server:
 
     def close_all_conns(self):
         print("-*- Closing",len(self.conns),"connections...")
+        time.sleep(3)
         for client in self.conns:
             client.close()
 
@@ -127,7 +98,7 @@ class Server:
             if cmd == "quit":
                 self.running = False
                 self.server.setblocking(True)
-                print("Desligando...")
+                print("-*- Desligando...")
                 self.multiThread.running = False
                 self.blockAll()
             elif cmd == "getalivethreads":
@@ -140,12 +111,16 @@ class Server:
         for key in self.paths.keys():
             if self.paths[key].find(search) != -1 or search == key:
                 return self.paths[key]
+
+        for file in self.source:
+            if file == search:
+                return "."+file
         return None
 
     def get_ok_template(self):
         data = "\r\nHTTP/1.1 200 OK\r\n"
         data += "Data: "+datetime.datetime.now().strftime('%d/%m/%Y %H:%M')+"\r\n"
-        data += "Server: ServidorWeb\r\n"
+        data += "Server: PYServidorWeb\r\n"
         data += "Content-Type: text/html\r\n"
         data += "\r\n"
 
@@ -154,10 +129,19 @@ class Server:
     def get_error_template(self):
         data = "HTTP/1.1 404 NOT FOUND\r\n"
         data += "Data: "+datetime.datetime.now().strftime('%d/%m/%Y %H:%M')+"\r\n"
-        data += "Server: ServidorWeb\r\n"
+        data += "Server: PYServidorWeb\r\n"
         data += "Content-Type: text/html\r\n"
         data += "\r\n"
         data += "<html><body><h1>ERROR 404 NOT FOUND</h1></body></html>\r\n\r\n"
+
+        return data
+
+    def get_css_template(self):
+        data = "\r\nHTTP/1.1 200 OK\r\n"
+        data += "Data: "+datetime.datetime.now().strftime('%d/%m/%Y %H:%M')+"\r\n"
+        data += "Server: ServidorWeb\r\n"
+        data += "Content-Type: stylesheet\r\n"
+        data += "\r\n"
 
         return data
 
@@ -168,16 +152,22 @@ class Server:
 
         return data+"\r\n\r\n"
 
+    def treat_template(self,path):
+        if path.find('.css') != -1:
+            return self.get_css_template()
+        else:
+            return self.get_ok_template()
+
     def get_page(self,to_page):
         path = self.existDirectory(to_page)
-        print("--->",path)
+        print("-*- page:",to_page,"=>",path)
         if path:
-            print("OK STATUS")
-            page = self.get_ok_template()
+            print("-*- localhost: OK STATUS")
+            page = self.treat_template(path)
             page += self.get_content(path)
             return page
         else:
-            print("404 NOT FOUND")
+            print("-*- localhost: 404 NOT FOUND")
             return self.get_error_template()
 
     def GET(self,params,to_page):
@@ -207,7 +197,7 @@ class Server:
             method = request[0].split()[0]
             to_page = request[0].split()[1]
 
-            print("METHOD [",method,"]")
+            print("-*- cliente: METHOD [",method,"]")
 
             params = request[len(request)-1]
             data = self.treat_method(method,params,to_page)
@@ -219,14 +209,14 @@ class Server:
         self.server.bind(("localhost",8080))
         self.server.settimeout(10)
         self.server.listen(5)
-        print("Server iniciado (localhost:8080)\nDigite 'quit' para encerrar o sevidor")
+        print("-*- Server iniciado (localhost:8080)\nDigite 'quit' para encerrar o sevidor")
 
         while self.running:
             try:
                 client,address = self.server.accept()
                 self.conns.append(client)
                 print("---------------------------------------------------------")
-                print("Cliente: ",address,end="")
+                print("-*- cliente: ",address,end="")
 
                 self.multiThread.newThread(client,self.handleNewConnection)
             except:
