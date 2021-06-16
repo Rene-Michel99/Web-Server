@@ -25,6 +25,8 @@ class Router:
             modifications = self.extrato()
         elif to_page == "/logout":
             self.save()
+        elif to_page == "/home":
+            modifications = {"{id}":self.session["nome"]}
         return to_page,modifications
 
     def POST(self,params,to_page):
