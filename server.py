@@ -100,7 +100,17 @@ class Server:
             print("-*- localhost: 404 NOT FOUND")
             return self.http.get_error_template().encode()
 
+    def GET(self,to_page):
+        to_page = to_page[1:]
+        print("--*--",to_page)
+        if hasattr(self.router,to_page):
+            func = getattr(self.router,to_page)
+            if callable(func):
+                print("--*-- callable function")
+            print("--*-- has",to_page,"attribute")
+
     def treat_method(self,method,params,to_page):
+        #self.GET(to_page)
         if method == "GET":
             to_page,modifications = self.router.GET(params,to_page)
             return self.get_page(to_page,modifications)

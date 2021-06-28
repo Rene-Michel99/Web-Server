@@ -13,7 +13,7 @@ class HandlerThreads:
 
     def close_all_conns(self):
         print("-*- Closing",len(self.conns),"connections...")
-        time.sleep(3)
+        time.sleep(5)
         for client in self.conns:
             client.close()
 
